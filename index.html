@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵感池 - 市场机会洞察</title>
+    <style>
+        /* ===== 全局样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== Tab导航栏 ===== */
+        .tab-navbar {
+            background-color: #16213e;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #a0a0a0;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background-color: rgba(15, 52, 96, 0.5);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background-color: #e94560;
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* ===== 主容器 ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ===== 内容区域 ===== */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== 头部区域 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        /* ===== 报告列表区域 ===== */
+        .report-list, .research-list, .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* ===== 卡片通用样式 ===== */
+        .report-card, .research-card, .project-card {
+            background-color: #16213e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid #0f3460;
+            transition: all 0.3s ease;
+        }
+
+        .report-card:hover, .research-card:hover, .project-card:hover {
+            transform: translateX(5px);
+            border-left-color: #e94560;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2);
+        }
+
+        /* 欢迎卡片 */
+        .report-card.welcome {
+            border-left-color: #e94560;
+            background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+            text-align: center;
+            padding: 3rem;
+            cursor: default;
+        }
+
+        .report-card.welcome:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 报告日期卡片（可展开） */
+        .report-card.clickable {
+            cursor: default;
+        }
+        .report-card.clickable .report-summary {
+            cursor: pointer;
+        }
+        .report-details {
+            cursor: text;
+            user-select: text;
+        }
+
+        .report-date {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e94560;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-date .toggle-icon {
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .report-card.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .report-count {
+            display: inline-block;
+            background-color: #0f3460;
+            color: #ffffff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-highlights {
+            color: #c0c0c0;
+            margin-bottom: 1rem;
+        }
+
+        .report-highlights li {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 报告详情展开区域 */
+        .report-details {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2a2a4e;
+        }
+
+        .report-card.expanded .report-details {
+            display: block;
+        }
+
+        .report-card.expanded .report-link {
+            display: none;
+        }
+
+        /* 调研项目卡片 */
+        .research-card.empty, .project-card.empty {
+            border-left-color: #e94560;
+            background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+            text-align: center;
+            padding: 3rem;
+            cursor: default;
+        }
+
+        .research-card.empty:hover, .project-card.empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .research-header, .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .research-name, .project-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .research-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .research-source {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-surveying {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .status-completed {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .status-paused {
+            background-color: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+        }
+
+        .status-planning {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .status-developing {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .status-launched {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .research-section, .project-section {
+            margin-bottom: 1rem;
+        }
+
+        .research-section:last-child, .project-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .research-section-title, .project-section-title {
+            color: #e94560;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .research-section-content, .project-section-content {
+            color: #c0c0c0;
+            padding-left: 1rem;
+        }
+
+        .research-section-content ul, .project-section-content ul {
+            margin-left: 1.5rem;
+        }
+
+        .research-section-content li, .project-section-content li {
+            margin-bottom: 0.3rem;
+        }
+
+        /* 里程碑 */
+        .milestone-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+        }
+
+        .milestone-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .milestone-content {
+            flex: 1;
+        }
+
+        .milestone-title {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .milestone-desc {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* 进度条 */
+        .progress-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2a2a4e;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: #0f3460;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .research-empty, .project-empty {
+            text-align: center;
+            color: #666;
+        }
+
+        /* ===== 底部 ===== */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            color: #666;
+            border-top: 1px solid #2a2a4e;
+        }
+
+        .footer-brand {
+            color: #e94560;
+            font-weight: 500;
+        }
+
+        /* ===== 响应式布局 ===== */
+        @media (max-width: 768px) {
+            .tab-navbar {
+                padding: 0 0.5rem;
+            }
+
+            .tab-btn {
+                padding: 1rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .report-card, .research-card, .project-card {
+                padding: 1rem;
+            }
+
+            .report-card.welcome, .research-card.empty, .project-card.empty {
+                padding: 2rem 1rem;
+            }
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            right: 2rem;
+            bottom: 7rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+        }
+        .back-to-top.visible {
+            display: flex;
+            opacity: 1;
+        }
+        .back-to-top:hover {
+            transform: scale(1.1);
+            background: #ff5a7a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tab导航栏 -->
+    <nav class="tab-navbar">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="inspiration">🔍 灵感池</button>
+            <button class="tab-btn" data-tab="research">🔄 转化页</button>
+            <button class="tab-btn" data-tab="projects">🚀 项目方案</button>
+        </div>
+    </nav>
+
+    <!-- 灵感池内容区域 -->
+    <main class="container">
+        <div class="tab-content active" id="inspiration">
+            <header class="header">
+                <h1>🔍 灵感池 - 市场机会洞察</h1>
+                <p>每日7:45自动更新，捕捉市场动态，发现潜在机会</p>
+            </header>
+
+            <section class="report-list" id="report-list">
+                <!-- 5月19日报告卡片(日程) -->
+                <article class="report-card clickable">
+                    <div class="report-date">
+                        <span>2026年5月19日 周二</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <span class="report-count">发现 5 个机会</span>
+                    <ul class="report-highlights">
+                        <li>⭐⭐ <strong>AI电商日报生成器</strong> - 电商卖家每天花2-4小时做日报，超70%团队存在此痛点，与主人技能高度匹配</li>
+                        <li>⭐ <strong>供应商评分卡SaaS</strong> - 中小企业采购缺乏数据化评估工具，整合碎片数据生成多维雷达图</li>
+                        <li><strong>AI周报生成器</strong> - 老板需要能看懂的一句话总结，但FineBI等工具门槛高</li>
+                        <li><strong>小红书内容数据分析工具</strong> - 博主缺乏深度数据分析能力，日均800万笔记竞争激烈</li>
+                        <li><strong>跨境卖家多语言AI客服</strong> - 跨境卖家面临语言障碍、文化差异、客服成本高三重痛点</li>
+                    </ul>
+                    <div class="report-details">
+                        <h4 style="color: #e94560; margin: 1rem 0 0.5rem;">📊 机会1：AI电商日报生成器 ⭐⭐推荐</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>电商运营人员每天需要手工整理订单、流量、转化率等数据，整理到Excel做图表，再复制到PPT调整排版。据调研，超过70%的电商团队每天花费2-4小时在基础数据整理上，效率低下直接制约了数据分析的深度与及时性。某天猫运营负责人称"每周要做10份报表，每份至少包含20个字段，人工处理做完都快到凌晨了"。</p>
+                            <p style="margin-top: 0.5rem;"><strong>搜索热度证据：</strong>"电商数据分析自动化"近30天搜索量上涨45%；"自动报表工具"相关词搜索量稳定增长；帆软、FineBI等已有商业化验证。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有产品情况：</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>生意参谋/京东商智：平台自有，仅限自家平台数据</li>
+                                <li>FineBI/帆软：企业级，功能全面但价格高（年费数万），学习曲线陡</li>
+                                <li>Excel+Power Query：需要技术基础，无法自动化</li>
+                                <li>痛点：数据源整合复杂、模板僵化、无法处理业务口径变化</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>Python爬虫/API + Pandas数据处理 + AI大模型(报告生成) + 可视化图表(ECharts)。与主人技能高度匹配，已有小程序开发经验。</p>
+                            <p style="margin-top: 0.5rem;"><strong>差异化方向：</strong>聚焦电商场景；AI驱动灵活性（AI理解业务需求自动适配指标）；一键输出（从数据拉到可直接汇报的结论全程自动化）。</p>
+                            <p style="margin-top: 0.5rem;"><strong>启动成本：</strong>MVP聚焦单一平台+固定模板，2周可完成。中国电商从业者超500万，中小电商团队超200万家，月费99-299元合理。</p>
+                        </div>
+
+                        <h4 style="color: #e94560; margin: 1rem 0 0.5rem;">🏢 机会2：供应商评分卡SaaS ⭐推荐</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>中小企业采购时面临供应商选择难题：交期、质量、价格等信息分散在微信、合同、记忆中，缺乏系统对比依据，常因选错供应商增加成本与风险。而大型企业的SRM系统价格高、流程复杂，中小企业难以适配。</p>
+                            <p style="margin-top: 0.5rem;"><strong>核心功能：</strong>整合采购、质检、仓库、财务等碎片化数据，自动生成供应商多维评分雷达图与排行榜，直观呈现交付准时率、次品率、价格稳定性、响应速度等关键指标。</p>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>Python（数据整合）+ 可视化图表(ECharts)+ 简单的Web框架。主人数据分析能力可复用。</p>
+                            <p style="margin-top: 0.5rem;"><strong>商业模式：</strong>定价49-199元/月，低客单价降低成交门槛；先深耕1-2个细分行业，再考虑拓展。</p>
+                            <p style="margin-top: 0.5rem;"><strong>7天验证方案：</strong>搭建轻量版工具（网页/小程序），覆盖交期、质量、价格稳定、响应速度四大核心维度；招募10-20家中小企业试用。</p>
+                        </div>
+
+                        <h4 style="color: #4fc3f7; margin: 1rem 0 0.5rem;">📝 机会3：AI周报生成器 👀观望</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>中小企业老板需要周报总结来了解经营状况，但现有系统数据分散、表格图表杂乱、指标名词专业，依赖运营人工做周报效率低且口径不一致。</p>
+                            <p style="margin-top: 0.5rem;"><strong>产品核心：</strong>极简呈现，5分钟get关键信息。核心是"一句话能说清生意好不好、问题在哪、要不要行动"，无需复杂图表、无专业术语。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有竞品：</strong>FineBI等企业级BI工具功能全但价格高、学习成本大；轻量工具多聚焦数据展示，缺少AI总结能力。</p>
+                            <p style="margin-top: 0.5rem;"><strong>风险：</strong>竞争激烈，FineBI、神策等已占据企业市场。需要差异化聚焦特定行业。</p>
+                        </div>
+
+                        <h4 style="color: #4fc3f7; margin: 1rem 0 0.5rem;">📱 机会4：小红书内容数据分析工具 👀观望</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>小红书博主和商家需要分析笔记表现（阅读、互动、涨粉）、竞品数据、内容趋势，但缺乏专业工具。日均新增笔记超800万篇，仅12%能突破500+浏览量。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有工具：</strong>蝉妈妈、千瓜数据等支持热度排行和竞品追踪，但深度分析需企业级BI；数据采集存在API限制和合规风险。</p>
+                            <p style="margin-top: 0.5rem;"><strong>机会点：</strong>聚焦"内容优化建议"而非单纯数据展示；AI驱动的内容诊断和优化推荐。</p>
+                            <p style="margin-top: 0.5rem;"><strong>风险：</strong>平台API限制严格，数据采集可能触发风控；竞品已有一定规模。</p>
+                        </div>
+
+                        <h4 style="color: #4fc3f7; margin: 1rem 0 0.5rem;">🌐 机会5：跨境卖家多语言AI客服 👀观望</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>跨境电商卖家面临语言障碍、文化差异、客服成本高三重难题：买家使用多语种咨询，手动翻译效率低；不同地区礼仪习惯不同，易因表达不当引发投诉；专职多语客服成本高昂。</p>
+                            <p style="margin-top: 0.5rem;"><strong>市场机会：</strong>AI实时翻译客服可自动处理多语种咨询；结合文化差异适配提供更自然的回复；降低人力成本。</p>
+                            <p style="margin-top: 0.5rem;"><strong>风险：</strong>竞争激烈，Google翻译、DeepL等已提供基础翻译能力；需要差异化聚焦电商场景；AI回复准确性需把控。</p>
+                        </div>
+
+                        <h4 style="color: #888; margin: 1.5rem 0 0.5rem; font-size: 0.9rem;">📌 今日市场信号摘要</h4>
+                        <ul style="color: #a0a0a0; font-size: 0.9rem; margin-left: 1.5rem;">
+                            <li>腾讯Ardot公测：AI设计智能体支持一句话生成设计稿+一键转代码，设计开发流程自动化成趋势</li>
+                            <li>AIHOT热点：Figure机器人连续4天自主运行，具身智能进入"能干"实用化阶段</li>
+                            <li>独立开发者爆发：Product Hunt上月增500款AI产品，单人项目月收入可达13万美元</li>
+                            <li>垂直领域机会：测试工具、微信读书skill等小而美工具验证细分市场需求</li>
+                            <li>Anthropic《Founder's Playbook》警告：AI极大降低执行成本，判断力成最稀缺资源</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- 5月18日报告卡片 -->
+                <article class="report-card clickable">
+                    <div class="report-date">
+                        <span>2026年5月18日 周一</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <span class="report-count">发现 4 个机会</span>
+                    <ul class="report-highlights">
+                        <li>⭐ <strong>AI数据报告生成自动化</strong> - 企业定期报告需求旺盛，现有工具门槛高，适合个人开发者切入</li>
+                        <li>⭐ <strong>垂直电商场景ChatBI</strong> - 电商卖家对数据分析需求强烈但缺乏技术能力，Google Gemini已整合进输入法成信号</li>
+                        <li><strong>AI API可靠性检测服务</strong> - 中转站掺水问题催生检测需求，可作为API服务切入</li>
+                        <li><strong>微信读书式数据资产可视化</strong> - 开源skill启发，将个人数据生成26种图表报告的模式可复制</li>
+                    </ul>
+                    <div class="report-details">
+                        <h4 style="color: #e94560; margin: 1rem 0 0.5rem;">📊 机会1：AI数据报告生成自动化工具 ⭐推荐</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>企业员工、运营人员需要定期生成数据分析报告（日报、周报、月报），但现有BI工具要么太贵（帆软、Smartbi年费数万）、要么太复杂（Power BI学习曲线陡峭），中小商家和个人用户难以使用。</p>
+                            <p style="margin-top: 0.5rem;"><strong>搜索热度证据：</strong>帆软、Smartbi、DataFocus等BI工具搜索量持续增长；ChatBI搜索热度上升；"数据分析报告自动生成"相关词搜索量年增约30%。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有产品情况：</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>帆软FineBI：面向企业，功能全面但价格高，学习成本大</li>
+                                <li>Smartbi：Agent BI概念领先，但面向大企业</li>
+                                <li>DataFocus：搜索式BI，面向有一定数据意识的用户</li>
+                                <li>ChatGPT for Excel：聚焦电子表格，无法处理复杂报告</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>缺什么：</strong>轻量级、低成本、一键生成专业报告的工具，尤其适合中小商家和个人用户。</p>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>Python（数据处理）+ AI大模型（生成分析文字）+ 模板引擎（报告排版）。主人已有小程序基础，技术完全覆盖。</p>
+                            <p style="margin-top: 0.5rem;"><strong>差异化方向：</strong>聚焦"一键生成"体验，内置多种报告模板（销售周报、运营月报、活动复盘等），支持自定义数据源。</p>
+                            <p style="margin-top: 0.5rem;"><strong>启动成本：</strong>低。可基于开源图表库（Echarts）+ AI API + 模板系统快速MVP。</p>
+                        </div>
+
+                        <h4 style="color: #e94560; margin: 1rem 0 0.5rem;">🛒 机会2：垂直电商场景ChatBI ⭐推荐</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>电商卖家（淘宝、京东、拼多多、抖音小店等）每天需要查看店铺数据（销售额、访客、转化率、竞品动态），但跨平台数据分散、缺乏统一分析入口。京东618数据显示AI助手"京言"已有8000万用户，证明需求真实。</p>
+                            <p style="margin-top: 0.5rem;"><strong>搜索热度证据：</strong>"电商数据分析"搜索量稳定；Google将Gemini整合进Gboard是AI从工具变基础设施的信号。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有产品情况：</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>京东数坊/抖音生意参谋：平台自有，功能全但仅限自家平台</li>
+                                <li>神策/GrowingIO：面向中大型企业，价格高</li>
+                                <li>跨平台数据工具：多是数据展示，缺少AI分析能力</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>缺什么：</strong>跨平台统一查询+AI智能分析的轻量工具，让中小卖家用自然语言问数据。</p>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>主人已有"AI跨平台数据映射"项目基础，可复用技术栈。需要API对接各平台数据。</p>
+                            <p style="margin-top: 0.5rem;"><strong>差异化方向：</strong>自然语言查询（"本月哪款商品退货率最高？"）+ 自动归因分析（"为什么销售额下降了？"）。</p>
+                            <p style="margin-top: 0.5rem;"><strong>与主人项目的协同：</strong>可作为现有SaaS工具的AI增强功能，降低开发成本。</p>
+                        </div>
+
+                        <h4 style="color: #4fc3f7; margin: 1rem 0 0.5rem;">🔍 机会3：AI API可靠性检测服务 👀观望</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>AIHOT今日报道开源项目api-relay-audit揭露AI API中转站"掺水"问题。大量开发者和企业使用第三方API中转服务，但缺乏可靠检测手段。</p>
+                            <p style="margin-top: 0.5rem;"><strong>搜索热度证据：</strong>AIHOT精选74分，说明社区关注度高。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有产品情况：</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>api-relay-audit：开源工具，提供基础检测</li>
+                                <li>hvoy.ai/cctest.ai：商业服务，透明度有限</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>缺什么：</strong>可视化检测报告、持续监控、异常告警等企业级功能。</p>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>Python（核心逻辑）+ Web界面 + 数据库（存储检测结果）。技术可行但需要持续维护API知识。</p>
+                            <p style="margin-top: 0.5rem;"><strong>风险：</strong>开源工具已覆盖基础需求，商业化需要差异化功能；可能面临法律风险（检测行为本身）。</p>
+                            <p style="margin-top: 0.5rem;"><strong>初步判断：</strong>市场较小众，但需求真实。可作为技术展示项目，不建议作为主业。</p>
+                        </div>
+
+                        <h4 style="color: #4fc3f7; margin: 1rem 0 0.5rem;">📚 机会4：个人数据资产可视化平台 👀观望</h4>
+                        <div style="margin-bottom: 1rem;">
+                            <p><strong>需求描述：</strong>AIHOT今日报道姚金刚开源微信读书skill，可生成26种图表的阅读报告。类似需求可复制到其他数据场景：健身数据、投资记录、支出分类等。</p>
+                            <p style="margin-top: 0.5rem;"><strong>搜索热度证据：</strong>该skill获80分精选（AIHOT今日最高分之一），说明社区认可度高。</p>
+                            <p style="margin-top: 0.5rem;"><strong>现有产品情况：</strong></p>
+                            <ul style="margin-left: 1.5rem; margin-top: 0.25rem;">
+                                <li>微信读书skill：开源，针对阅读数据</li>
+                                <li>个人财务类App：多是展示，缺少深度分析</li>
+                                <li>健身App：数据分散，难以统一分析</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><strong>缺什么：</strong>聚合多数据源、生成统一报告的工具。</p>
+                            <p style="margin-top: 0.5rem;"><strong>技术可行性：</strong>Python（数据处理）+ 可视化库（Echarts等）+ AI（生成洞察文字）。技术可行。</p>
+                            <p style="margin-top: 0.5rem;"><strong>风险：</strong>数据源获取可能涉及API限制或合规问题；已有小程序"数据备忘查询"方向类似。</p>
+                            <p style="margin-top: 0.5rem;"><strong>初步判断：</strong>可参考其"26种图表"模式，但需差异化。主人已有小程序积累，可考虑整合。</p>
+                        </div>
+
+                        <h4 style="color: #888; margin: 1.5rem 0 0.5rem; font-size: 0.9rem;">📌 今日市场信号摘要</h4>
+                        <ul style="color: #a0a0a0; font-size: 0.9rem; margin-left: 1.5rem;">
+                            <li>GPT-5.5正式推送，Agent能力从"演示"变为"可用"，AI进入"做事"阶段</li>
+                            <li>Cursor估值500亿美元，AI编程工具成标配，程序员需适应新工作方式</li>
+                            <li>腾讯Ardot公测，AI设计工具进入"产设研协作"时代</li>
+                            <li>Anthropic CEO警告：AI将导致软件免费化、职业结构巨变</li>
+                            <li>独立开发者AI工具占比从22%升至47%，单人项目月收入可达13万美元</li>
+                        </ul>
+                    </div>
+                </article>
+                
+                <!-- 欢迎卡片 -->
+                <article class="report-card welcome">
+                    <div class="welcome-icon">✨</div>
+                    <h2>欢迎使用灵感池</h2>
+                    <p style="color: #a0a0a0; margin-top: 1rem;">
+                        每日7:45自动更新，8点前就位<br>
+                        从这里开始，发现市场的下一个机会
+                    </p>
+                </article>
+            </section>
+        </div>
+
+        <!-- 转化页内容区域 -->
+        <div class="tab-content" id="research">
+            <header class="header">
+                <h1>🔄 灵感转化 - 深度调研</h1>
+                <p>从灵感池中筛选有潜力的项目，进行深度市场调研</p>
+            </header>
+
+            <section class="research-list" id="research-list">
+                <!-- 空状态说明 -->
+                <article class="research-card empty" id="research-empty-placeholder">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔬</div>
+                    <h2>暂无调研项目</h2>
+                    <p style="color: #a0a0a0; margin-top: 1rem;">
+                        与 Thor 讨论后，有潜力的灵感会进入此页面<br>
+                        开始进行深度调研和分析
+                    </p>
+                </article>
+            </section>
+        </div>
+
+        <!-- 项目方案内容区域 -->
+        <div class="tab-content" id="projects">
+            <header class="header">
+                <h1>🚀 项目方案 - 从灵感到产品</h1>
+                <p>调研确认可行的项目将进入此页面，开始PRD和开发工作</p>
+            </header>
+
+            <section class="project-list" id="project-list">
+                <!-- 空状态说明 -->
+                <article class="project-card empty" id="project-empty-placeholder">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚀</div>
+                    <h2>暂无立项项目</h2>
+                    <p style="color: #a0a0a0; margin-top: 1rem;">
+                        调研确认可行的项目会进入此页面<br>
+                        开始编写PRD和技术方案文档
+                    </p>
+                </article>
+            </section>
+        </div>
+    </main>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <p>由 <span class="footer-brand">Thor 每日洞察</span> 提供支持</p>
+    </footer>
+
+    <script>
+        // ===== Tab切换逻辑 =====
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                
+                // 切换按钮状态
+                tabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 切换内容区域
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId) {
+                        content.classList.add('active');
+                    }
+                });
+                
+                // 保存当前tab到localStorage
+                localStorage.setItem('activeTab', tabId);
+            });
+        });
+
+        // 页面加载时恢复上次选中的tab
+        function restoreActiveTab() {
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab) {
+                const btn = document.querySelector(`[data-tab="${savedTab}"]`);
+                if (btn) btn.click();
+            }
+        }
+
+        // ===== 灵感池功能 =====
+        /**
+         * 添加每日报告卡片（支持展开详情）
+         * @param {string} date - 日期，格式如 "2024-01-15"
+         * @param {number} count - 发现的机会数量
+         * @param {string[]} highlights - 最值得关注的机会摘要数组
+         * @param {string} reportHtml - 完整报告的HTML内容（可选）
+         */
+        function addDailyReport(date, count, highlights, reportHtml) {
+            const reportList = document.getElementById('report-list');
+            
+            // 创建卡片元素
+            const card = document.createElement('article');
+            card.className = 'report-card clickable';
+            
+            // 格式化日期显示
+            const dateObj = new Date(date);
+            const dateDisplay = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+            const weekDay = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dateObj.getDay()];
+            
+            // 构建高亮列表HTML
+            const highlightsHtml = highlights && highlights.length > 0 
+                ? `<ul class="report-highlights">${highlights.map(h => `<li>${h}</li>`).join('')}</ul>`
+                : '';
+            
+            // 判断是否有详情内容
+            const hasDetails = reportHtml && reportHtml.trim().length > 0;
+            
+            card.innerHTML = `
+                <div class="report-date">
+                    <span>${dateDisplay} ${weekDay}</span>
+                    ${hasDetails ? '<span class="toggle-icon">▼</span>' : ''}
+                </div>
+                <span class="report-count">发现 ${count} 个机会</span>
+                ${highlightsHtml}
+                ${hasDetails ? '' : '<span class="report-link" style="color: #888;">点击查看详情</span>'}
+                ${hasDetails ? `<div class="report-details">${reportHtml}</div>` : ''}
+            `;
+            
+            // 添加点击展开/折叠事件
+            if (hasDetails) {
+                card.addEventListener('click', (e) => {
+                    // 避免点击报告详情内的链接时触发折叠
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    card.classList.toggle('expanded');
+                });
+            }
+            
+            // 将新卡片插入到欢迎卡片之前
+            const welcomeCard = reportList.querySelector('.welcome');
+            reportList.insertBefore(card, welcomeCard);
+            
+            // 隐藏欢迎卡片
+            if (welcomeCard) {
+                welcomeCard.style.display = 'none';
+            }
+            
+            // 保存到localStorage
+            saveDailyReport(date, count, highlights, reportHtml);
+        }
+
+        /**
+         * 保存每日报告到本地存储
+         */
+        function saveDailyReport(date, count, highlights, reportHtml) {
+            let storedReports = localStorage.getItem('inspirationPoolReports');
+            let reports = storedReports ? JSON.parse(storedReports) : [];
+            
+            const existingIndex = reports.findIndex(r => r.date === date);
+            const reportData = { date, count, highlights: highlights || [], reportHtml: reportHtml || '' };
+            
+            if (existingIndex >= 0) {
+                reports[existingIndex] = reportData;
+            } else {
+                reports.push(reportData);
+            }
+            
+            localStorage.setItem('inspirationPoolReports', JSON.stringify(reports));
+        }
+
+        /**
+         * 从本地存储加载每日报告
+         */
+        function loadStoredReports() {
+            const storedReports = localStorage.getItem('inspirationPoolReports');
+            if (storedReports) {
+                try {
+                    const reports = JSON.parse(storedReports);
+                    // 按日期倒序排列
+                    reports.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    reports.forEach(report => {
+                        addDailyReport(report.date, report.count, report.highlights, report.reportHtml);
+                    });
+                } catch (e) {
+                    console.error('加载存储的报告失败:', e);
+                }
+            }
+        }
+
+        // ===== 页面加载 =====
+        document.addEventListener('DOMContentLoaded', () => {
+            // 恢复上次选中的tab
+            restoreActiveTab();
+        });
+
+        // ===== 转化页功能 =====
+        /**
+         * 添加调研项目卡片
+         * @param {string} name - 项目名称
+         * @param {string} sourceDate - 来源日期，格式如 "2024-01-15"
+         * @param {string} status - 调研状态：'调研中' / '已完成' / '已搁置'
+         * @param {string} summary - 调研摘要
+         * @param {string[]} findings - 关键发现数组
+         * @param {string[]} nextSteps - 下一步行动数组
+         */
+        function addResearchProject(name, sourceDate, status, summary, findings, nextSteps) {
+            const researchList = document.getElementById('research-list');
+            const emptyPlaceholder = document.getElementById('research-empty-placeholder');
+            
+            // 格式化来源日期
+            const dateObj = new Date(sourceDate);
+            const sourceDisplay = `${dateObj.getFullYear()}年${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+            
+            // 状态样式映射
+            const statusClassMap = {
+                '调研中': 'status-surveying',
+                '已完成': 'status-completed',
+                '已搁置': 'status-paused'
+            };
+            const statusClass = statusClassMap[status] || 'status-surveying';
+            
+            // 构建发现列表HTML
+            const findingsHtml = findings && findings.length > 0 
+                ? `<div class="research-section-content"><ul>${findings.map(f => `<li>${f}</li>`).join('')}</ul></div>`
+                : '<div class="research-section-content"><p class="research-empty">暂无关键发现</p></div>';
+            
+            // 构建下一步行动HTML
+            const nextStepsHtml = nextSteps && nextSteps.length > 0 
+                ? `<div class="research-section-content"><ul>${nextSteps.map(s => `<li>${s}</li>`).join('')}</ul></div>`
+                : '<div class="research-section-content"><p class="research-empty">暂无下一步行动</p></div>';
+            
+            // 创建卡片元素
+            const card = document.createElement('article');
+            card.className = 'research-card';
+            card.innerHTML = `
+                <div class="research-header">
+                    <span class="research-name">${name}</span>
+                    <div class="research-meta">
+                        <span class="research-source">来源：${sourceDisplay}</span>
+                        <span class="status-badge ${statusClass}">${status}</span>
+                    </div>
+                </div>
+                <div class="research-section">
+                    <div class="research-section-title">📝 调研摘要</div>
+                    <div class="research-section-content">${summary || '<p class="research-empty">暂无摘要</p>'}</div>
+                </div>
+                <div class="research-section">
+                    <div class="research-section-title">💡 关键发现</div>
+                    ${findingsHtml}
+                </div>
+                <div class="research-section">
+                    <div class="research-section-title">🎯 下一步行动</div>
+                    ${nextStepsHtml}
+                </div>
+            `;
+            
+            // 隐藏空状态占位符
+            if (emptyPlaceholder) {
+                emptyPlaceholder.style.display = 'none';
+            }
+            
+            // 将新卡片插入到列表开头
+            researchList.insertBefore(card, researchList.firstChild);
+            
+            // 保存到localStorage
+            saveResearchProject(name, sourceDate, status, summary, findings, nextSteps);
+        }
+
+        /**
+         * 保存调研项目到本地存储
+         */
+        function saveResearchProject(name, sourceDate, status, summary, findings, nextSteps) {
+            let storedProjects = localStorage.getItem('researchProjects');
+            let projects = storedProjects ? JSON.parse(storedProjects) : [];
+            
+            const existingIndex = projects.findIndex(p => p.name === name);
+            const projectData = { name, sourceDate, status, summary: summary || '', findings: findings || [], nextSteps: nextSteps || [] };
+            
+            if (existingIndex >= 0) {
+                projects[existingIndex] = projectData;
+            } else {
+                projects.push(projectData);
+            }
+            
+            localStorage.setItem('researchProjects', JSON.stringify(projects));
+        }
+
+        /**
+         * 从本地存储加载调研项目
+         */
+        function loadStoredResearchProjects() {
+            const storedProjects = localStorage.getItem('researchProjects');
+            if (storedProjects) {
+                try {
+                    const projects = JSON.parse(storedProjects);
+                    projects.forEach(project => {
+                        addResearchProject(
+                            project.name,
+                            project.sourceDate,
+                            project.status,
+                            project.summary,
+                            project.findings,
+                            project.nextSteps
+                        );
+                    });
+                } catch (e) {
+                    console.error('加载存储的调研项目失败:', e);
+                }
+            }
+        }
+
+        /**
+         * 更新调研项目状态
+         * @param {string} name - 项目名称
+         * @param {string} newStatus - 新状态
+         */
+        function updateResearchStatus(name, newStatus) {
+            let storedProjects = localStorage.getItem('researchProjects');
+            if (storedProjects) {
+                let projects = JSON.parse(storedProjects);
+                const project = projects.find(p => p.name === name);
+                if (project) {
+                    project.status = newStatus;
+                    localStorage.setItem('researchProjects', JSON.stringify(projects));
+                }
+            }
+        }
+
+        /**
+         * 删除调研项目
+         * @param {string} name - 项目名称
+         */
+        function deleteResearchProject(name) {
+            let storedProjects = localStorage.getItem('researchProjects');
+            if (storedProjects) {
+                let projects = JSON.parse(storedProjects);
+                projects = projects.filter(p => p.name !== name);
+                localStorage.setItem('researchProjects', JSON.stringify(projects));
+            }
+        }
+
+        // ===== 项目方案功能 =====
+        /**
+         * 添加项目卡片
+         * @param {string} name - 项目名称
+         * @param {string} status - 项目状态：'规划中' / '开发中' / '已上线'
+         * @param {string} prdSummary - PRD摘要/核心功能描述
+         * @param {string[]} techPlan - 技术方案要点数组
+         * @param {Array<{title: string, desc: string, completed: boolean}>} milestones - 里程碑数组
+         */
+        function addProject(name, status, prdSummary, techPlan, milestones) {
+            const projectList = document.getElementById('project-list');
+            const emptyPlaceholder = document.getElementById('project-empty-placeholder');
+            
+            // 状态样式映射
+            const statusClassMap = {
+                '规划中': 'status-planning',
+                '开发中': 'status-developing',
+                '已上线': 'status-launched'
+            };
+            const statusClass = statusClassMap[status] || 'status-planning';
+            
+            // 构建技术方案HTML
+            const techPlanHtml = techPlan && techPlan.length > 0 
+                ? `<div class="project-section-content"><ul>${techPlan.map(t => `<li>${t}</li>`).join('')}</ul></div>`
+                : '<div class="project-section-content"><p class="project-empty">暂无技术方案</p></div>';
+            
+            // 构建里程碑HTML
+            const milestonesHtml = milestones && milestones.length > 0 
+                ? milestones.map(m => `
+                    <div class="milestone-item">
+                        <span class="milestone-icon">${m.completed ? '✅' : '⬜'}</span>
+                        <div class="milestone-content">
+                            <div class="milestone-title">${m.title}</div>
+                            <div class="milestone-desc">${m.desc || ''}</div>
+                        </div>
+                    </div>
+                `).join('')
+                : '<p class="project-empty">暂无里程碑规划</p>';
+            
+            // 计算进度
+            const completedCount = milestones ? milestones.filter(m => m.completed).length : 0;
+            const progressPercent = milestones && milestones.length > 0 
+                ? Math.round((completedCount / milestones.length) * 100) 
+                : 0;
+            
+            // 创建卡片元素
+            const card = document.createElement('article');
+            card.className = 'project-card';
+            card.innerHTML = `
+                <div class="project-header">
+                    <span class="project-name">${name}</span>
+                    <span class="status-badge ${statusClass}">${status}</span>
+                </div>
+                <div class="project-section">
+                    <div class="project-section-title">📋 PRD 摘要</div>
+                    <div class="project-section-content">${prdSummary || '<p class="project-empty">暂无PRD摘要</p>'}</div>
+                </div>
+                <div class="project-section">
+                    <div class="project-section-title">🛠 技术方案</div>
+                    ${techPlanHtml}
+                </div>
+                <div class="project-section">
+                    <div class="project-section-title">📊 进度里程碑</div>
+                    <div class="project-section-content">
+                        ${milestonesHtml}
+                    </div>
+                    ${milestones && milestones.length > 0 ? `
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>总体进度</span>
+                            <span>${progressPercent}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // 隐藏空状态占位符
+            if (emptyPlaceholder) {
+                emptyPlaceholder.style.display = 'none';
+            }
+            
+            // 将新卡片插入到列表开头
+            projectList.insertBefore(card, projectList.firstChild);
+            
+            // 保存到localStorage
+            saveProject(name, status, prdSummary, techPlan, milestones);
+        }
+
+        /**
+         * 保存项目到本地存储
+         */
+        function saveProject(name, status, prdSummary, techPlan, milestones) {
+            let storedProjects = localStorage.getItem('projects');
+            let projects = storedProjects ? JSON.parse(storedProjects) : [];
+            
+            const existingIndex = projects.findIndex(p => p.name === name);
+            const projectData = { name, status, prdSummary: prdSummary || '', techPlan: techPlan || [], milestones: milestones || [] };
+            
+            if (existingIndex >= 0) {
+                projects[existingIndex] = projectData;
+            } else {
+                projects.push(projectData);
+            }
+            
+            localStorage.setItem('projects', JSON.stringify(projects));
+        }
+
+        /**
+         * 从本地存储加载项目
+         */
+        function loadStoredProjects() {
+            const storedProjects = localStorage.getItem('projects');
+            if (storedProjects) {
+                try {
+                    const projects = JSON.parse(storedProjects);
+                    projects.forEach(project => {
+                        addProject(
+                            project.name,
+                            project.status,
+                            project.prdSummary,
+                            project.techPlan,
+                            project.milestones
+                        );
+                    });
+                } catch (e) {
+                    console.error('加载存储的项目失败:', e);
+                }
+            }
+        }
+
+        /**
+         * 更新项目状态
+         * @param {string} name - 项目名称
+         * @param {string} newStatus - 新状态
+         */
+        function updateProjectStatus(name, newStatus) {
+            let storedProjects = localStorage.getItem('projects');
+            if (storedProjects) {
+                let projects = JSON.parse(storedProjects);
+                const project = projects.find(p => p.name === name);
+                if (project) {
+                    project.status = newStatus;
+                    localStorage.setItem('projects', JSON.stringify(projects));
+                }
+            }
+        }
+
+        /**
+         * 更新里程碑完成状态
+         * @param {string} projectName - 项目名称
+         * @param {number} milestoneIndex - 里程碑索引
+         * @param {boolean} completed - 是否完成
+         */
+        function updateMilestone(projectName, milestoneIndex, completed) {
+            let storedProjects = localStorage.getItem('projects');
+            if (storedProjects) {
+                let projects = JSON.parse(storedProjects);
+                const project = projects.find(p => p.name === projectName);
+                if (project && project.milestones[milestoneIndex]) {
+                    project.milestones[milestoneIndex].completed = completed;
+                    localStorage.setItem('projects', JSON.stringify(projects));
+                }
+            }
+        }
+
+        /**
+         * 删除项目
+         * @param {string} name - 项目名称
+         */
+        function deleteProject(name) {
+            let storedProjects = localStorage.getItem('projects');
+            if (storedProjects) {
+                let projects = JSON.parse(storedProjects);
+                projects = projects.filter(p => p.name !== name);
+                localStorage.setItem('projects', JSON.stringify(projects));
+            }
+        }
+
+        // ===== 页面加载时恢复数据 =====
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStoredReports();
+            loadStoredResearchProjects();
+            loadStoredProjects();
+
+            // ===== 卡片展开/折叠逻辑 =====
+            document.querySelectorAll('.report-card.clickable').forEach(card => {
+                const details = card.querySelector('.report-details');
+                const summary = card.querySelector('.report-summary');
+                
+                // 如果没有report-summary div，自动创建一个包裹日期+摘要
+                if (!summary) {
+                    const dateEl = card.querySelector('.report-date');
+                    const countEl = card.querySelector('.report-count');
+                    const highlightsEl = card.querySelector('.report-highlights');
+                    
+                    const summaryDiv = document.createElement('div');
+                    summaryDiv.className = 'report-summary';
+                    
+                    // 把日期、计数、摘要移到summary div里
+                    if (dateEl) summaryDiv.appendChild(dateEl);
+                    if (countEl) summaryDiv.appendChild(countEl);
+                    if (highlightsEl) summaryDiv.appendChild(highlightsEl);
+                    
+                    // 插入到details之前
+                    if (details) {
+                        card.insertBefore(summaryDiv, details);
+                    } else {
+                        card.appendChild(summaryDiv);
+                    }
+                }
+                
+                // 点击摘要区域切换展开
+                const summaryArea = card.querySelector('.report-summary');
+                if (summaryArea) {
+                    summaryArea.addEventListener('click', () => {
+                        card.classList.toggle('expanded');
+                    });
+                }
+                
+                // 点击详情区域不折叠（阻止冒泡）
+                if (details) {
+                    details.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                }
+            });
+
+            // ===== 返回顶部按钮逻辑 =====
+            const backToTopBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+        });
+    </script>
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+</body>
+</html>
